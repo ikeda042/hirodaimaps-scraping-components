@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import asyncio
+from datetime import datetime
 
 
 class Navitime:
@@ -28,7 +29,7 @@ class Navitime:
             for time_detail in time_details
         ]
 
-    async def request(self) -> None:
+    async def request(self, time: datetime | None = None) -> list[list[str]]:
         with webdriver.Chrome(
             service=self.service, options=self.chrome_options
         ) as driver:
@@ -39,10 +40,21 @@ class Navitime:
             wait = WebDriverWait(driver, 0)
             wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
             self.html_source = driver.page_source
-            time_details = self.parse_time_detail(self.html_source)
+            time_details = [
+                [datetime.strptime(j, "%H:%M").time() for j in i]
+                for i in self.parse_time_detail(self.html_source)
+            ]
             print(time_details)
+            if time:
+                time_details = [
+                    dst
+                    for dst in [[j for j in i if j > time.time()] for i in time_details]
+                    if len(dst) > 0
+                ]
+            # convert datetime to string
+            return [[j.strftime("%H:%M") for j in i] for i in time_details]
 
 
 if __name__ == "__main__":
     navitime = Navitime()
-    asyncio.run(navitime.request())
+    print(asyncio.run(navitime.request(time=datetime.now())))
