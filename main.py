@@ -44,12 +44,11 @@ class Navitime:
                 [datetime.strptime(j, "%H:%M").time() for j in i]
                 for i in self.parse_time_detail(self.html_source)
             ]
-            print(time_details)
             if time:
                 time_details = [
                     dst
                     for dst in [[j for j in i if j > time.time()] for i in time_details]
-                    if len(dst) > 0
+                    if len(dst) > 1
                 ]
             # convert datetime to string
             return [[j.strftime("%H:%M") for j in i] for i in time_details]
