@@ -44,6 +44,5 @@ class Navitime:
 
 
 if __name__ == "__main__":
-
     navitime = Navitime()
     asyncio.run(navitime.request())
